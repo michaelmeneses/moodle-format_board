@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -14,6 +15,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * format_board
+ *
+ * @package    format_board
+ * @author     Rodrigo Brandão (rodrigobrandao.com.br)
+ * @copyright  2017 Rodrigo Brandão
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot.'/course/format/topics/renderer.php');
@@ -21,18 +31,12 @@ require_once($CFG->dirroot.'/course/format/topics/renderer.php');
 /**
  * format_board_renderer
  *
- * @package    format_board
- * @author     Rodrigo Brandão (rodrigobrandao.com.br)
- * @copyright  2016 Rodrigo Brandão
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class format_board_renderer extends format_topics_renderer {
-    
+
     /**
      * start_section_list
      *
-     * @param int $i
-     * @return string
      */
     protected function start_section_list($i = 0) {
         global $course;
@@ -50,11 +54,6 @@ class format_board_renderer extends format_topics_renderer {
     /**
      * section_header
      *
-     * @param stdclass $section
-     * @param stdclass $course
-     * @param bool $onsectionpage
-     * @param int $sectionreturn
-     * @return string
      */
     protected function section_header($section, $course, $onsectionpage, $sectionreturn = null) {
         global $PAGE;
@@ -68,7 +67,7 @@ class format_board_renderer extends format_topics_renderer {
                 $sectionstyle = ' current';
             }
         }
-        $o.= html_writer::start_tag('li', array('id' => 'section-'.$section->section, 
+        $o.= html_writer::start_tag('li', array('id' => 'section-'.$section->section,
             'class' => 'section main clearfix'.$sectionstyle, 'role'=>'region', 'aria-label'=> get_section_name($course, $section)));
         $o .= html_writer::tag('span', $this->section_title($section, $course), array('class' => 'hidden sectionname'));
         $leftcontent = $this->section_left_content($section, $course, $onsectionpage);
@@ -97,11 +96,6 @@ class format_board_renderer extends format_topics_renderer {
     /**
      * print_multiple_section_page
      *
-     * @param stdclass $course
-     * @param array $sections (argument not used)
-     * @param array $mods (argument not used)
-     * @param array $modnames (argument not used)
-     * @param array $modnamesused (argument not used)
      */
     public function print_multiple_section_page($course, $sections, $mods, $modnames, $modnamesused) {
         global $PAGE;
@@ -112,7 +106,9 @@ class format_board_renderer extends format_topics_renderer {
         $completioninfo = new completion_info($course);
         $cont = 1;
         $currentcol = 1;
-        for ($i = 1; $i <= 8; $i++) {
+        $courseconfig = get_config('moodlecourse');
+        $max = $courseconfig->maxsections;
+        for ($i = 1; $i <= $max; $i++) {
             $numtopicscol[$i] = $course->{'numsectionscol'.$i};
         }
         if (isset($course->color)) {
@@ -121,10 +117,10 @@ class format_board_renderer extends format_topics_renderer {
             if (is_numeric('0x'.$course->color)) {
                 $course->color = '#'.$course->color;
                 $css = '
-                .course-content ul.board li.section.main.current h3.sectionname { color: '.$course->color.'; } 
+                .course-content ul.board li.section.main.current h3.sectionname { color: '.$course->color.'; }
                 .course-content ul.board.blocks li.section.main h3.sectionname { color: '.$course->color.'; }
                 .course-content ul.board.blocks li.section.main.current { border-color: '.$course->color.'; }
-                .course-content ul.board.blocks li.section.main.current h3.sectionname { background-color: '.$course->color.'; color: #fff; }
+                .course-content ul.board.blocks li.section.main.current h3.sectionname { background: '.$course->color.'; color: #fff; }
                 ';
                 echo html_writer::tag('style', $css);
             }

@@ -20,7 +20,7 @@
  *
  * @package    format_board
  * @author     Rodrigo Brandão (rodrigobrandao.com.br)
- * @copyright  2016 Rodrigo Brandão
+ * @copyright  2017 Rodrigo Brandão
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -49,19 +49,19 @@
 .course-content ul.board.width25 {
     width: 25%;
 }
-.path-course-view .completionprogress {
+.course-content ul.board .path-course-view .completionprogress {
     display: none !important;
 }
-.section .side.left, .section .side.right {
+.course-content ul.board .section .side.left, .course-content ul.board .section .side.right {
     display: none;
 }
-.editing .section .side.left, .editing .section .side.right {
+.editing .course-content ul.board .section .side.left, .editing .course-content ul.board .section .side.right {
     display: inline-block;
 }
-.section li.activity {
+.course-content ul.board .section li.activity {
     padding: 5px 0 !important;
 }
-.section .activity .mod-indent-outer {
+.course-content ul.board .section .activity .mod-indent-outer {
     padding: 0 !important;
 }
 .course-content ul.board li.section.main {
@@ -71,6 +71,9 @@
     display: inline-block;
     list-style: none;
     width: calc(100% - 40px);
+}
+.course-content ul.board li#section-0 {
+    margin: 0;
 }
 .course-content ul.board li.section.main h3.sectionname {
     padding: 0 0 5px 0;
@@ -86,11 +89,12 @@
 .course-content ul.board li.section.main.current {
     background: none;
 }
-/* blocks */
+
+/* blocks - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 .course-content ul.board.blocks li.section.main {
     background-color: #fff;
     border-style: solid;
-    border-width: 1px;
+    border-width: 1px !important;
     border-color: #dfdfdf;
     padding: 0;
     margin: 8px;
@@ -99,7 +103,7 @@
     width: calc(100% - 16px);
 }
 .course-content ul.board.blocks li.section.main.current {
-    border-width: 3px;
+    border-width: 3px !important;
     border-color: #0070a8;
     width: calc(100% - 21px);
 }
@@ -112,6 +116,7 @@
     padding: 0;
 }
 .course-content ul.board.blocks #section-0 {
+    border: 0;
     background: none;
 }
 .course-content ul.board.blocks .summary h4 {
@@ -119,16 +124,12 @@
     padding: 0;
     margin: 0;
 }
-.course-content ul.board.blocks .summary p {
-    margin: 0;
-    padding: 0;
-}
 .course-content ul.board.blocks li.section.main h3.sectionname {
-    padding: 10px;
-    background: #eee;
+    padding: 5px 10px 7px 10px;
+    background: #f5f5f5;
     color: #0070a8;
-    font-size: 18px;
-    line-height: 20px;
+    font-size: 16px;
+    line-height: 19px;
     border-bottom: 1px solid #dfdfdf;
 }
 .course-content ul.board.blocks li.section.main.current h3.sectionname {
@@ -138,7 +139,8 @@
 .course-content ul.board.blocks li.section.main.hidden h3.sectionname {
     color: #999;
 }
-/* editing */
+
+/* editing - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 .editing .course-content ul.board .section .side.left {
     display: inline-block;
     margin-left: -9px;
@@ -147,24 +149,25 @@
 .editing .course-content ul.board .section .side.right {
     display: inline-block;
 }
-.editing .course-content ul.board .section .activity .contentwithoutlink, 
+.editing .course-content ul.board .section .activity .contentwithoutlink,
 .editing .course-content ul.board .section .activity .activityinstance {
     padding-right: 70px;
 }
 .editing .course-content ul.board .section .activity .editing_move {
     left: -22px;
 }
-/* mobile */
+
+/* mobile - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 @media (max-width: 767px) {
-    .course-content ul.board.width75, 
-    .course-content ul.board.width66, 
-    .course-content ul.board.width50, 
-    .course-content ul.board.width33, 
+    .course-content ul.board.width75,
+    .course-content ul.board.width66,
+    .course-content ul.board.width50,
+    .course-content ul.board.width33,
     .course-content ul.board.width25 {
         width: 100%;
     }
-    .course-content ul.board.blocks li.section.main, 
-    .course-content ul.board li.section.main, 
+    .course-content ul.board.blocks li.section.main,
+    .course-content ul.board li.section.main,
     .course-content ul.board.blocks li.section.main.current {
         margin-left: 0;
         margin-right: 0;

@@ -18,7 +18,7 @@
  *
  * @package    format_board
  * @author     Rodrigo Brandão (rodrigobrandao.com.br)
- * @copyright  2016 Rodrigo Brandão
+ * @copyright  2017 Rodrigo Brandão
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -27,20 +27,12 @@ M.format_board = M.format_board || {
     numsections: 0
 };
 
-/**
- * init
- *
- */
 M.format_board.init = function(Y, numsections) {
     this.ourYUI = Y;
     this.numsections = parseInt(numsections);
     //document.getElementById('boardectioncontainer').style.display = 'table';
 };
 
-/**
- * hide
- *
- */
 M.format_board.hide = function () {
     for (i = 1; i <= this.numsections; i++) {
         var boardection = document.getElementById('boardection-'+i);
@@ -49,10 +41,6 @@ M.format_board.hide = function () {
     }
 };
 
-/**
- * show
- *
- */
 M.format_board.show = function (i) {
     this.hide();
     var boardection = document.getElementById('boardection-'+i);
