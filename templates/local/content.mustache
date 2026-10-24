@@ -1,0 +1,136 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template format_board/local/content
+
+    Board version of core_courseformat/local/content.
+
+    Without editing, sections are grouped in columns (ul.board). In editing mode
+    or single section pages the standard section list is used, because the
+    reactive course editor expects a single [data-for='course_sectionlist'].
+
+    @package    format_board
+    @author     Rodrigo Brandão (rodrigobrandao.com.br)
+    @author     Michael Meneses <michael@middag.io>
+    @copyright  2017 Rodrigo Brandão
+    @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+
+    Example context (json):
+    {
+        "title": "Course title example",
+        "format": "board",
+        "boardlayout": "blocks",
+        "boardcolor": "#fab747",
+        "hascolumns": true,
+        "columns": [
+            {"num": 0, "width": 100, "sections": []},
+            {"num": 1, "width": 50, "sections": []}
+        ],
+        "hashiddenheaders": true,
+        "hiddenheaders": [1, 2],
+        "sections": [],
+        "sectionreturn": "null"
+    }
+}}
+<div id="course-format-{{uniqid}}" class="format-board-content {{boardlayout}}">
+    {{#boardcolor}}
+    <style>
+        .format-board-content li.section.main.current .sectionname,
+        .format-board-content ul.board.blocks li.section.main .sectionname { color: {{boardcolor}}; }
+        .format-board-content ul.board.blocks li.section.main.current { border-color: {{boardcolor}}; }
+        .format-board-content ul.board.blocks li.section.main.current .course-section-header { background: {{boardcolor}}; }
+        .format-board-content ul.board.blocks li.section.main.current .course-section-header .sectionname,
+        .format-board-content ul.board.blocks li.section.main.current .course-section-header a { color: #fff; }
+    </style>
+    {{/boardcolor}}
+    {{#hashiddenheaders}}
+    <style>
+        {{#hiddenheaders}}
+        .format-board-content #section-{{.}} .course-section-header { display: none !important; }
+        {{/hiddenheaders}}
+    </style>
+    {{/hashiddenheaders}}
+    <h2 class="accesshide">{{{title}}}</h2>
+    {{{completionhelp}}}
+    {{#hascolumns}}
+    <div class="board-columns">
+        {{#columns}}
+        <ul class="{{format}} board width{{width}} {{boardlayout}}" id="col-{{num}}">
+            {{#sections}}
+                {{$ core_courseformat/local/content/section }}
+                    {{> core_courseformat/local/content/section }}
+                {{/ core_courseformat/local/content/section }}
+            {{/sections}}
+        </ul>
+        {{/columns}}
+    </div>
+    {{/hascolumns}}
+    {{^hascolumns}}
+    <ul class="{{format}} board width100 {{boardlayout}}" data-for="course_sectionlist">
+        {{#initialsection}}
+            {{$ core_courseformat/local/content/section }}
+                {{> core_courseformat/local/content/section }}
+            {{/ core_courseformat/local/content/section }}
+        {{/initialsection}}
+        {{#sections}}
+            {{$ core_courseformat/local/content/section }}
+                {{> core_courseformat/local/content/section }}
+            {{/ core_courseformat/local/content/section }}
+        {{/sections}}
+    </ul>
+    {{/hascolumns}}
+    {{#hasnavigation}}
+    <div class="single-section">
+        {{#sectionnavigation}}
+            {{$ core_courseformat/local/content/sectionnavigation }}
+                {{> core_courseformat/local/content/sectionnavigation }}
+            {{/ core_courseformat/local/content/sectionnavigation }}
+        {{/sectionnavigation}}
+        <ul class="{{format}} board width100 {{boardlayout}}">
+        {{#singlesection}}
+            {{$ core_courseformat/local/content/section }}
+                {{> core_courseformat/local/content/section }}
+            {{/ core_courseformat/local/content/section }}
+        {{/singlesection}}
+        </ul>
+        {{#sectionselector}}
+            {{$ core_courseformat/local/content/sectionselector }}
+                {{> core_courseformat/local/content/sectionselector }}
+            {{/ core_courseformat/local/content/sectionselector }}
+        {{/sectionselector}}
+    </div>
+    {{/hasnavigation}}
+    {{#numsections}}
+        {{^singlesection}}
+            {{$ core_courseformat/local/content/addsection}}
+                {{> core_courseformat/local/content/addsection}}
+            {{/ core_courseformat/local/content/addsection}}
+        {{/singlesection}}
+    {{/numsections}}
+    {{#bulkedittools}}
+        {{$ core_courseformat/local/content/bulkedittools}}
+            {{> core_courseformat/local/content/bulkedittools}}
+        {{/ core_courseformat/local/content/bulkedittools}}
+    {{/bulkedittools}}
+</div>
+{{#js}}
+require(['core_courseformat/local/content'], function(component) {
+    component.init(
+        'page', {}, {{sectionreturn}}, {{#pagesectionid}}{{.}}{{/pagesectionid}}{{^pagesectionid}}null{{/pagesectionid}}
+    );
+});
+{{/js}}

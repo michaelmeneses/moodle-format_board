@@ -20,6 +20,7 @@
  *
  * @package    format_board
  * @author     Rodrigo Brandão (rodrigobrandao.com.br)
+ * @author     Michael Meneses <michael@middag.io>
  * @copyright  2017 Rodrigo Brandão
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -31,26 +32,41 @@ require_once($CFG->dirroot. '/course/format/topics/lib.php');
 /**
  * format_board
  *
+ * Moodle 4.x: inherits section handling, numsections on course creation, highlighting,
+ * hiddensections and coursedisplay from format_topics. The legacy "numsections" option
+ * was dropped because, together with update_course_format_options(), it deleted sections
+ * created through the 4.x "Add section" UI.
  */
 class format_board extends format_topics {
+
+    /** Default number of groups when moodlecourse/maxsections is not set. */
+    const DEFAULT_MAX_GROUPS = 52;
+
+    /** Allowed group widths (percent). */
+    const GROUP_WIDTHS = [100, 75, 66, 50, 33, 25];
+
+    /**
+     * Maximum number of section groups (columns).
+     *
+     * @return int
+     */
+    public static function get_max_groups() {
+        $max = get_config('moodlecourse', 'maxsections');
+        if (empty($max) || !is_numeric($max)) {
+            return self::DEFAULT_MAX_GROUPS;
+        }
+        return (int)$max;
+    }
 
     /**
      * course_format_options
      *
      */
     public function course_format_options($foreditform = false) {
-        global $PAGE;
-        static $courseformatoptions = false;
-        $courseconfig = get_config('moodlecourse');
-        $max = $courseconfig->maxsections;
-        if (!isset($max) || !is_numeric($max)) {
-            $max = 52;
-        }
-        if ($courseformatoptions === false) {
-            $courseformatoptions['numsections'] = array(
-                'default' => $courseconfig->numsections,
-                'type' => PARAM_INT,
-            );
+        static $courseformatoptions = null;
+        $max = self::get_max_groups();
+        if ($courseformatoptions === null) {
+            $courseformatoptions = parent::course_format_options();
             $courseformatoptions['showdefaultsectionname'] = array(
                 'default' => get_config('format_board', 'showdefaultsectionname'),
                 'type' => PARAM_INT,
@@ -74,16 +90,12 @@ class format_board extends format_topics {
                 'type' => PARAM_TEXT,
             );
         }
-        if ($foreditform && !isset($courseformatoptions['coursedisplay']['label'])) {
-            $sectionmenu = array();
-            for ($i = 0; $i <= $max; $i++) {
+        if ($foreditform && !isset($courseformatoptions['showdefaultsectionname']['label'])) {
+            $courseformatoptionsedit = parent::course_format_options(true);
+            $sectionmenu = array(0 => get_string('unlimited', 'format_board'));
+            for ($i = 1; $i <= $max; $i++) {
                 $sectionmenu[$i] = "$i";
             }
-            $courseformatoptionsedit['numsections'] = array(
-                'label' => new lang_string('numberweeks'),
-                'element_type' => 'select',
-                'element_attributes' => array($sectionmenu),
-            );
             $courseformatoptionsedit['showdefaultsectionname'] = array(
                 'label' => get_string('showdefaultsectionname', 'format_board'),
                 'help' => 'showdefaultsectionname',
@@ -96,7 +108,6 @@ class format_board extends format_topics {
                     ),
                 ),
             );
-            $sectionmenu[0] = get_string('unlimited', 'format_board');
             $courseformatoptionsedit['sectionlayout'] = array(
                 'label' => get_string('sectionlayout', 'format_board'),
                 'help' => 'sectionlayout',
@@ -109,22 +120,17 @@ class format_board extends format_topics {
                     ),
                 ),
             );
+            $widthmenu = array();
+            foreach (self::GROUP_WIDTHS as $width) {
+                $widthmenu[$width] = $width.'%';
+            }
             for ($i = 1; $i <= $max; $i++) {
                 $courseformatoptionsedit['widthcol'.$i] = array(
                     'label' => get_string('widthcol', 'format_board').' '.$i,
                     'help' => 'widthcol',
                     'help_component' => 'format_board',
                     'element_type' => 'select',
-                    'element_attributes' => array(
-                        array(
-                            100 => '100%',
-                            75 => '75%',
-                            66 => '66%',
-                            50 => '50%',
-                            33 => '33%',
-                            25 => '25%',
-                        ),
-                    ),
+                    'element_attributes' => array($widthmenu),
                 );
                 $courseformatoptionsedit['numsectionscol'.$i] = array(
                     'label' => get_string('numsectionscol', 'format_board').' '.$i,
@@ -140,85 +146,23 @@ class format_board extends format_topics {
                 'help_component' => 'format_board',
                 'element_type' => 'text',
             );
-            $courseformatoptions = array_merge_recursive($courseformatoptions, $courseformatoptionsedit);
+            $courseformatoptions = array_replace_recursive($courseformatoptions, $courseformatoptionsedit);
         }
         return $courseformatoptions;
     }
 
     /**
-     * update_course_format_options
+     * Course color as a validated "#rrggbb" / "#rgb" string, or null.
      *
+     * @return string|null
      */
-    public function update_course_format_options($data, $oldcourse = null) {
-        global $DB;
-        $data = (array)$data;
-        if ($oldcourse !== null) {
-            $oldcourse = (array)$oldcourse;
-            $options = $this->course_format_options();
-            foreach ($options as $key => $unused) {
-                if (!array_key_exists($key, $data)) {
-                    if (array_key_exists($key, $oldcourse))
-                        $data[$key] = $oldcourse[$key];
-                    else if ($key === 'numsections') {
-                        $maxsection = $DB->get_field_sql('SELECT max(section) from {course_sections}
-                            WHERE course = ?', array($this->courseid));
-                        if ($maxsection)
-                            $data['numsections'] = $maxsection;
-                    }
-                }
-            }
+    public function get_board_color() {
+        $color = $this->get_course()->color ?? '';
+        $color = ltrim(trim((string)$color), '#');
+        if (!preg_match('/^([0-9a-f]{3}|[0-9a-f]{6})$/i', $color)) {
+            return null;
         }
-        $changed = $this->update_format_options($data);
-        if ($changed && array_key_exists('numsections', $data)) {
-            $numsections = (int)$data['numsections'];
-            $maxsection = $DB->get_field_sql('SELECT max(section) from {course_sections}
-                        WHERE course = ?', array($this->courseid));
-            for ($sectionnum = $maxsection; $sectionnum > $numsections; $sectionnum--)
-                if (!$this->delete_section($sectionnum, false))
-                    break;
-        }
-        return $changed;
-    }
-
-  /**
-     * get_view_url
-     *
-     */
-    public function get_view_url($section, $options = array()) {
-        global $CFG;
-        $course = $this->get_course();
-        $url = new moodle_url('/course/view.php', array('id' => $course->id));
-
-        $sr = null;
-        if (array_key_exists('sr', $options)) {
-            $sr = $options['sr'];
-        }
-        if (is_object($section)) {
-            $sectionno = $section->section;
-        } else {
-            $sectionno = $section;
-        }
-        if ($sectionno !== null) {
-            if ($sr !== null) {
-                if ($sr) {
-                    $usercoursedisplay = COURSE_DISPLAY_MULTIPAGE;
-                    $sectionno = $sr;
-                } else {
-                    $usercoursedisplay = COURSE_DISPLAY_SINGLEPAGE;
-                }
-            } else {
-                $usercoursedisplay = 0;
-            }
-            if ($sectionno != 0 && $usercoursedisplay == COURSE_DISPLAY_MULTIPAGE) {
-                $url->param('section', $sectionno);
-            } else {
-                if (empty($CFG->linkcoursesections) && !empty($options['navigation'])) {
-                    return null;
-                }
-                $url->set_anchor('section-'.$sectionno);
-            }
-        }
-        return $url;
+        return '#'.$color;
     }
 
 }

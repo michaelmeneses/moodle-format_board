@@ -20,6 +20,7 @@
  *
  * @package    format_board
  * @author     Rodrigo Brandão (rodrigobrandao.com.br)
+ * @author     Michael Meneses <michael@middag.io>
  * @copyright  2017 Rodrigo Brandão
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -35,17 +36,20 @@ if ($topic = optional_param('topic', 0, PARAM_INT)) {
     debugging('Outdated topic param passed to course/view.php', DEBUG_DEVELOPER);
     redirect($url);
 }
+
+// Moodle 4.x rendering, based on course/format/topics/format.php.
+$format = course_get_format($course);
+$course = $format->get_course();
 $context = context_course::instance($course->id);
 if (($marker >= 0) && has_capability('moodle/course:setcurrentsection', $context) && confirm_sesskey()) {
     $course->marker = $marker;
     course_set_marker($course->id, $marker);
 }
-$course = course_get_format($course)->get_course();
-course_create_sections_if_missing($course, range(0, $course->numsections));
+course_create_sections_if_missing($course, 0);
 $renderer = $PAGE->get_renderer('format_board');
-if (!empty($displaysection)) {
-    $renderer->print_single_section_page($course, null, null, null, null, $displaysection);
-} else {
-    $renderer->print_multiple_section_page($course, null, null, null, null);
+if (!is_null($displaysection)) {
+    $format->set_sectionnum($displaysection);
 }
-$PAGE->requires->js('/course/format/board/format.js');
+$outputclass = $format->get_output_classname('content');
+$widget = new $outputclass($format);
+echo $renderer->render($widget);

@@ -20,6 +20,7 @@
  *
  * @package    format_board
  * @author     Rodrigo Brandão (rodrigobrandao.com.br)
+ * @author     Michael Meneses <michael@middag.io>
  * @copyright  2017 Rodrigo Brandão
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -58,3 +59,4 @@ $string['numsectionscol_help'] = 'Set the number of sections that are within the
 $string['unlimited'] = 'Unlimited';
 $string['color'] = 'Color';
 $string['color_help'] = 'Define a color in hexadecimal. <i>Example: #fab747</i><br>If want use the default color leave empty.';
+$string['privacy:metadata'] = 'The Board format plugin does not store any personal data.';
