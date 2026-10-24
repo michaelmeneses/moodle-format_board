@@ -20,14 +20,17 @@
  *
  * @package    format_board
  * @author     Rodrigo Brandão (rodrigobrandao.com.br)
+ * @author     Michael Meneses <michael@middag.io>
  * @copyright  2017 Rodrigo Brandão
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->requires = 2013111800; /* moodle 2.6.0 */
 $plugin->component = 'format_board';
-$plugin->maturity = MATURITY_ALPHA;
-$plugin->release = '(Build: 2017120700)';
-$plugin->version = 2017120700;
+$plugin->version = 2026102400;
+$plugin->release = '4.5.0 (Build: 2026102400) by Michael Meneses';
+$plugin->requires = 2024100700; /* moodle 4.5.0 */
+$plugin->supported = [405, 405];
+$plugin->maturity = MATURITY_STABLE;
+$plugin->dependencies = ['format_topics' => ANY_VERSION];
